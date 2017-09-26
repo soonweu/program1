@@ -46,20 +46,21 @@ public class Loaders {
     			
     			// check if file is empty
     			if (!fileScan.hasNext()){
+    				fileScan.close();
     				throw new IOException(GROCERY_FILE_IO_ERROR_MSG);
     			} else {
     				while (fileScan.hasNextLine()) {
     					line = fileScan.nextLine();
     					Scanner lineScan = new Scanner(line);
     					
-    					// get all entries that follow the required format
+    					// get all entries that follow the required format, trim spaces
     					lineScan.useDelimiter(":");
     					entries = new ArrayList<String>();
     					String name;
     					Double quantity;
     					while (lineScan.hasNext()) {
-    						entries.add(lineScan.next().replaceAll("\\s",""));
-    					}					
+    						entries.add(lineScan.next().trim());
+    					}
     					
     					// extract name & quantity from entries
     					if (entries.size() == 2) {
@@ -80,6 +81,7 @@ public class Loaders {
     					}
     					lineScan.close();
     				}
+    				fileScan.close();
     				return readGroceryList;
     			}
     		}
@@ -102,57 +104,52 @@ public class Loaders {
 
         // TODO COMPLETE THIS METHOD
     	
-    	File groceryFile = new File(filename);
+    	File recipeFile = new File(filename);
 		String line;
 		ArrayList<String> entries;
-		GroceryList readGroceryList = new GroceryList();
+		RecipeList readRecipeList = new RecipeList();
 		
 		// check if file exists
-		if (!groceryFile.exists()) {
-			throw new IOException(GROCERY_FILE_IO_ERROR_MSG);
+		if (!recipeFile.exists()) {
+			throw new IOException(RECIPE_FILE_IO_ERROR_MSG);
 		} else {
-			Scanner fileScan = new Scanner(groceryFile);
-			
+			Scanner fileScan = new Scanner(recipeFile);
+
 			// check if file is empty
 			if (!fileScan.hasNext()){
-				throw new IOException(GROCERY_FILE_IO_ERROR_MSG);
+				fileScan.close();
+				throw new IOException(RECIPE_FILE_IO_ERROR_MSG);
 			} else {
 				while (fileScan.hasNextLine()) {
 					line = fileScan.nextLine();
 					Scanner lineScan = new Scanner(line);
 					
-					// get all entries that follow the required format
-					lineScan.useDelimiter(":");
+					// get all entries that follow the required format, trim spaces
+					lineScan.useDelimiter("->|\\,|\\:");
 					entries = new ArrayList<String>();
-					String name;
-					Double quantity;
+					String recipeName;
+					ArrayList<Ingredient> readIngredients = new ArrayList<Ingredient>();
 					while (lineScan.hasNext()) {
-						entries.add(lineScan.next().replaceAll("\\s",""));
-					}					
-					
-					// extract name & quantity from entries
-					if (entries.size() == 2) {
-						name = entries.get(0);
-						quantity = Double.parseDouble(entries.get(1));
-						Ingredient ingredientToAdd = new Ingredient(name, quantity);
-						
-						// if ingredient already exits in the grocery list, add quantity; if not, add ingredient
-						if(readGroceryList.contains(ingredientToAdd)){
-							for (int i = 0; i < readGroceryList.size(); i++){
-								if (readGroceryList.get(i).getName().equals(ingredientToAdd.getName())){
-									readGroceryList.get(i).setQuantity(readGroceryList.get(i).getQuantity() + ingredientToAdd.getQuantity());
-								}
-							}
-						} else {
-							readGroceryList.add(ingredientToAdd);
-						}    						
+						entries.add(lineScan.next().trim());
 					}
-					lineScan.close();
+					
+					// extract recipe name & ingredients from entries
+					recipeName = entries.get(0);
+					for (int i = 0; i < entries.size()-2; i++){
+						readIngredients.add(new Ingredient(entries.get(i+1), Double.parseDouble(entries.get(i+2))));
+						i++;
+					}
+					
+					// complete recipe list
+					Recipe readRecipe = new Recipe(recipeName, readIngredients);
+					readRecipeList.add(readRecipe);					
+
+					lineScan.close();	
 				}
-				return readGroceryList;
+				fileScan.close();
+				return readRecipeList;
 			}
 		}
-
     }
 
     /** 

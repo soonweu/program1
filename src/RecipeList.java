@@ -46,11 +46,12 @@ public class RecipeList implements ListADT<Recipe> {
     
     // return true iff item is in the List (i.e., there is an item x in the List such that x.equals(item))
     public boolean contains(Recipe item){
-    	if (items.contains(item)){
-    		return true;
-    	} else {
-    		return false;
+    	for (int i = 0; i < items.size(); i++){
+    		if (items.get(i).getRecipeName().equals(item.getRecipeName())){
+    			return true;
+    		}
     	}
+    	return false;
     }
 
     // return the number of items in the List.
