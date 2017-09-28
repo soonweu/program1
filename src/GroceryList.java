@@ -21,7 +21,7 @@ public class GroceryList implements ListADT<Ingredient>  {
      * Iterator using an ArrayList<Ingredient> iterator
      */
     public Iterator<Ingredient> iterator(){
-    	return new ArrayList<Ingredient>().iterator();
+    	return items.iterator();
     }
     
     /**

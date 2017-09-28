@@ -68,11 +68,15 @@ public class Loaders {
     						quantity = Double.parseDouble(entries.get(1));
     						Ingredient ingredientToAdd = new Ingredient(name, quantity);
     						
+    						Ingredient currIng;
+    						Iterator<Ingredient> itr = readGroceryList.iterator();
+    	                    
     						// if ingredient already exits in the grocery list, add quantity; if not, add ingredient
     						if(readGroceryList.contains(ingredientToAdd)){
-    							for (int i = 0; i < readGroceryList.size(); i++){
-    								if (readGroceryList.get(i).getName().equals(ingredientToAdd.getName())){
-    									readGroceryList.get(i).setQuantity(readGroceryList.get(i).getQuantity() + ingredientToAdd.getQuantity());
+    							while (itr.hasNext()){
+    								currIng = itr.next();
+    								if(currIng.getName().equals(ingredientToAdd.getName())){
+    									currIng.setQuantity(currIng.getQuantity()+ingredientToAdd.getQuantity());
     								}
     							}
     						} else {
@@ -142,7 +146,7 @@ public class Loaders {
 					
 					// complete recipe list
 					Recipe readRecipe = new Recipe(recipeName, readIngredients);
-					readRecipeList.add(readRecipe);					
+					readRecipeList.add(readRecipe);
 
 					lineScan.close();	
 				}
@@ -155,19 +159,32 @@ public class Loaders {
     /** 
      * Write the GroceryList items to the specified file.
      *
-     * Each ingredient is written to the file in the order that the ingredient is found in the GrocerList
+     * Each ingredient is written to the file in the order that the ingredient is found in the GroceryList
      * the format for each line is:
      *
      * ingredient_name: amount
      *
-     * @param grocery list of ingredients
-     * @param name of the file to write them to.
+     * @param groceries grocery list of ingredients
+     * @param filename name of the file to write them to.
      */
     public static void write(GroceryList groceries, String filename) {
 
         // TODO COMPLETE THIS METHOD
-
+    	Iterator<Ingredient> itr = groceries.iterator();
+		Ingredient currIng;
+    	
+		try{
+    		PrintWriter writer = new PrintWriter(filename);
+    		
+    		while(itr.hasNext()){
+				currIng = itr.next();
+				writer.println(currIng.getName() + ": " + currIng.getQuantity());
+			}
+    		
+    		writer.close();
+    	} catch (IOException e) {
+    		System.out.println("Unable to write ingredients to " + filename);
+    	}
     }
-    
 
 }

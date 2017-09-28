@@ -22,7 +22,7 @@ public class RecipeList implements ListADT<Recipe> {
      * Iterator using an ArrayList<Ingredient> iterator
      */
     public Iterator<Recipe> iterator(){
-    	return new ArrayList<Recipe>().iterator();
+    	return items.iterator();
     }
     
     /**
