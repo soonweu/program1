@@ -1,3 +1,13 @@
+///////////////////////////////////////////////////////////////////////////////
+// Semester:         CS367 Fall 2017 
+// PROJECT:          program1
+// FILE:             GroceryMatch.java
+//
+// TEAM:   Individual
+// Author: Yu Song
+//
+//////////////////////////// 80 columns wide //////////////////////////////////
+
 import java.util.*;
 import java.io.*;
 
@@ -43,15 +53,15 @@ public class GroceryMatch {
     	int[] serv = new int[recipe.getIngredients().size()];
     	int idx = 0, max = 0;
     	
-    	// iterate through recipe and grocery, get servings made by each individual ingredient in recipe
+    	// iterate through recipe and grocery list, get servings made by each individual ingredient in recipe
     	itrRec = recipe.getIngredients().iterator();
-    	while (itrRec.hasNext()){
+    	while (itrRec.hasNext()){ // iterate through recipe
     		inRec = itrRec.next();
     		itrGro = groceries.iterator();
-    		while (itrGro.hasNext()){
+    		while (itrGro.hasNext()){ // iterate through grocery list
     			inGro = itrGro.next();
     			if (inRec.getName().equals(inGro.getName())){
-    				serv[idx] = (int) (inGro.getQuantity() / inRec.getQuantity());
+    				serv[idx] = (int) (inGro.getQuantity() / inRec.getQuantity()); 
     				break;
     			}
     		}
@@ -114,8 +124,8 @@ public class GroceryMatch {
     		while (itrGro.hasNext()){
     			inGro = itrGro.next();
     			if (inRec.getName().equals(inGro.getName())){
-    				ingServ[idx] = (int) (inGro.getQuantity() / inRec.getQuantity()); // get the available servings from each individual ingredient in recipe
-    				available[idx] = inGro.getQuantity(); // get the available amount of ingredients
+    				ingServ[idx] = (int) (inGro.getQuantity() / inRec.getQuantity()); 
+    				available[idx] = inGro.getQuantity();
     				break;
     			}
     		}
@@ -279,15 +289,16 @@ public class GroceryMatch {
     	Recipe currRec;
     	Ingredient currIng;
     	int idx;
-    	while (recItr.hasNext()){
+    	
+    	while (recItr.hasNext()){ // traverse through recipe list
     		currRec = recItr.next();
     		System.out.print(currRec.getRecipeName() + " -> ");
     		ingItr = currRec.getIngredients().iterator();
     		idx = 0;
-    		while (ingItr.hasNext()){
+    		while (ingItr.hasNext()){ // traverse through the ingredient list of a recipe
     			currIng = ingItr.next();
     			System.out.print(currIng.getName() + ": " + currIng.getQuantity());
-    			if (idx < currRec.getIngredients().size()-1){
+    			if (idx < currRec.getIngredients().size()-1){ // last ingredient ends without comma
     				System.out.print(", ");
     			}
     			idx++;

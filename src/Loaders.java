@@ -1,3 +1,13 @@
+///////////////////////////////////////////////////////////////////////////////
+// Semester:         CS367 Fall 2017 
+// PROJECT:          program1
+// FILE:             Loaders.java
+//
+// TEAM:   Individual
+// Author: Yu Song
+//
+//////////////////////////// 80 columns wide //////////////////////////////////
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.IOException;
