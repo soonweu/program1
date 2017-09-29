@@ -18,9 +18,8 @@ public class GroceryMatch {
     private static final String SERVING_NUMBER_INVALID_ERROR_MSG = "Please enter positive integer for number of servings";
     private static final String UNRECOGNIZED_COMMAND_ERROR_MSG = "Unrecognized command";
     
-    // FIXME should be private!!!!!!!!!!!!!!!!!!!!!
-    public GroceryList groceries;
-    public RecipeList recipes;
+    private GroceryList groceries;
+    private RecipeList recipes;
     
     
     /** 
@@ -53,6 +52,7 @@ public class GroceryMatch {
     			inGro = itrGro.next();
     			if (inRec.getName().equals(inGro.getName())){
     				serv[idx] = (int) (inGro.getQuantity() / inRec.getQuantity());
+    				break;
     			}
     		}
     		idx++;
@@ -94,9 +94,45 @@ public class GroceryMatch {
         //
         //         if the ingredient is not found in the GroceryList
         //            print how many more needs to be bought
+    	Iterator<Ingredient> itrGro, itrRec;
+    	Ingredient inGro, inRec;
+    	int[] ingServ = new int[recipe.getIngredients().size()];
+    	double[] available = new double[recipe.getIngredients().size()];
+    	double[] shortage = new double[recipe.getIngredients().size()];
+    	int idx = 0;
     	
+    	// give initial value of 0 to ingredients' available amount
+    	for (int i = 0; i < available.length; i++){
+    		available[i] = 0.0;
+    	}
     	
-
+    	// iterate through the recipe and the grocery list 
+    	itrRec = recipe.getIngredients().iterator();
+    	while (itrRec.hasNext()){
+    		inRec = itrRec.next();
+    		itrGro = groceries.iterator();
+    		while (itrGro.hasNext()){
+    			inGro = itrGro.next();
+    			if (inRec.getName().equals(inGro.getName())){
+    				ingServ[idx] = (int) (inGro.getQuantity() / inRec.getQuantity()); // get the available servings from each individual ingredient in recipe
+    				available[idx] = inGro.getQuantity(); // get the available amount of ingredients
+    				break;
+    			}
+    		}
+    		idx++;
+    	}
+    	
+    	// get the shortage of ingredients
+    	for (int i = 0; i < shortage.length; i++){
+    		shortage[i] = numOfServing * recipe.getIngredients().get(i).getQuantity() - available[i];
+    	}
+    	
+    	// report shortage of insufficient ingredients
+    	for (int i = 0; i < shortage.length; i++){
+    		if (ingServ[i] < numOfServing){
+    			System.out.println(recipe.getIngredients().get(i).getName() + ": " + shortage[i]);
+    		}
+    	}
     }
 
     /**
@@ -114,8 +150,22 @@ public class GroceryMatch {
         //     for each ingredient in the grocery list
         //         if the ingredient in the recipe is same as ingredient from list
         //             deduct the recipe quantity times num servings from the grocery list ingredient quantity
-        //             break out of inner loop to get to next recipe ingredient        
-
+        //             break out of inner loop to get to next recipe ingredient
+    	Iterator<Ingredient> itrGro, itrRec;
+    	Ingredient inGro, inRec;
+    	itrRec = recipe.getIngredients().iterator();
+    	
+    	while (itrRec.hasNext()){
+    		inRec = itrRec.next();
+    		itrGro = groceries.iterator();
+    		while (itrGro.hasNext()){
+    			inGro = itrGro.next();
+    			if (inRec.getName().equals(inGro.getName())){
+    				inGro.setQuantity(inGro.getQuantity() - (inRec.getQuantity() * numOfServing));
+    				break;
+    			}
+    		}
+    	}
     }
     
     /**
@@ -129,24 +179,61 @@ public class GroceryMatch {
     public void handleUse(Scanner stdin){
 
         //TODO Complete this method (for full credit be sure to make use of the other methods in this class)
-
+    	String recipeName;
+    	int desiredNumServings = 0, maxNumServings = 0;
+    	boolean recipeFound = false;
+    	Iterator<Recipe> itr = recipes.iterator();
+    	Recipe currRecipe, recipeToUse = null;
+    	
         // Get recipe to make from user input
         System.out.println(RECIPE_NAME_INPUT_PROMPT);
-
-        // If recipe name is not in the recipe list, display RECIPE NAME NOT FOUND MESSAGE and return         
+        recipeName = stdin.nextLine().trim();
+        
+        // If recipe name is not in the recipe list, display RECIPE NAME NOT FOUND MESSAGE and return
         // Find recipe from the recipe list
+        while (itr.hasNext()){
+        	currRecipe = itr.next();
+        	if (currRecipe.getRecipeName().equals(recipeName)) {
+        		recipeToUse = currRecipe;
+        		recipeFound = true;
+        		break;
+        	}
+        }
+        
+        if (!recipeFound) {
+        	System.out.println(RECIPE_NAME_NOT_FOUND_ERROR_MSG);
+        	return;
+        }
         
         // Get number of servings from user input (positive integer only)
         System.out.println(SERVING_NUMBER_INPUT_PROMPT);
-
         // If invalid integer string or integer is not positive, display SERVING NUMBER INVALID MESSAGE AND return;
+        try { // check for input not meet format requirement
+        	desiredNumServings = Integer.parseInt(stdin.nextLine().trim());
+        } catch (NumberFormatException e) { 
+        	System.out.println(SERVING_NUMBER_INVALID_ERROR_MSG);
+        	return;
+        }
         
+        if (desiredNumServings < 1) { // check for non-positive input
+        	System.out.println(SERVING_NUMBER_INVALID_ERROR_MSG);
+        	return;
+        }
         
         // Calculate the maximum number of serving using current groceries.
+        maxNumServings = this.calcMaxNumServing(recipeToUse);
         
         // If the max number of servings is less than number of servings asked for, report shortage, do not update grocery
         // Otherwise, display RECIPE READY MESSAGE and update GroceryList
-
+        if (maxNumServings < desiredNumServings) {
+        	this.reportShortage(recipeToUse, desiredNumServings);
+        	return;
+        } else {
+        	this.updateGroceries(recipeToUse, desiredNumServings);
+        	System.out.println(RECIPE_READY);
+        	return;
+        }
+        
     }
     
     /**
@@ -163,6 +250,12 @@ public class GroceryMatch {
     public static void print( GroceryList groceries ) {
 
         // TODO complete this method using the iterator from the GroceryList
+    	Iterator<Ingredient> itr = groceries.iterator();
+    	Ingredient currIng;
+    	while (itr.hasNext()){
+    		currIng = itr.next();
+    		System.out.println(currIng.getName() + ": " + currIng.getQuantity());
+    	}
 
     }
     
@@ -181,6 +274,26 @@ public class GroceryMatch {
     public static void print(RecipeList recipes) {
 
         // TODO complete this method using the iterator from the RecipeList
+    	Iterator<Recipe> recItr = recipes.iterator();
+    	Iterator<Ingredient> ingItr;
+    	Recipe currRec;
+    	Ingredient currIng;
+    	int idx;
+    	while (recItr.hasNext()){
+    		currRec = recItr.next();
+    		System.out.print(currRec.getRecipeName() + " -> ");
+    		ingItr = currRec.getIngredients().iterator();
+    		idx = 0;
+    		while (ingItr.hasNext()){
+    			currIng = ingItr.next();
+    			System.out.print(currIng.getName() + ": " + currIng.getQuantity());
+    			if (idx < currRec.getIngredients().size()-1){
+    				System.out.print(", ");
+    			}
+    			idx++;
+    		}
+    		System.out.println();
+    	}
 
     }
     

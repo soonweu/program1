@@ -1,3 +1,6 @@
-milk: 16
-eggs: 55
-oil: 100
+
+eggs: 3
+
+milk: 18
+
+
