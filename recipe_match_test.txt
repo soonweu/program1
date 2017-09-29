@@ -1,0 +1,1 @@
+omelet -> milk: 1, eggs: 9, oil: 5

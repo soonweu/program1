@@ -18,8 +18,9 @@ public class GroceryMatch {
     private static final String SERVING_NUMBER_INVALID_ERROR_MSG = "Please enter positive integer for number of servings";
     private static final String UNRECOGNIZED_COMMAND_ERROR_MSG = "Unrecognized command";
     
-    private GroceryList groceries;
-    private RecipeList recipes;
+    // FIXME should be private!!!!!!!!!!!!!!!!!!!!!
+    public GroceryList groceries;
+    public RecipeList recipes;
     
     
     /** 
@@ -38,8 +39,35 @@ public class GroceryMatch {
     public Integer calcMaxNumServing( Recipe recipe ) {
 
          // TODO COMPLETE THIS METHOD
+    	Iterator<Ingredient> itrGro, itrRec;
+    	Ingredient inGro, inRec;
+    	int[] serv = new int[recipe.getIngredients().size()];
+    	int idx = 0, max = 0;
     	
-
+    	// iterate through recipe and grocery, get servings made by each individual ingredient in recipe
+    	itrRec = recipe.getIngredients().iterator();
+    	while (itrRec.hasNext()){
+    		inRec = itrRec.next();
+    		itrGro = groceries.iterator();
+    		while (itrGro.hasNext()){
+    			inGro = itrGro.next();
+    			if (inRec.getName().equals(inGro.getName())){
+    				serv[idx] = (int) (inGro.getQuantity() / inRec.getQuantity());
+    			}
+    		}
+    		idx++;
+    	}
+    	
+    	// get the maximum servings, limited by the fewest servings made by each individual ingredient
+    	max = serv[0];
+    	for (int i = 0; i < serv.length; i++){
+    		if (max > serv[i]){
+    			max = serv[i];
+    		}
+    	}
+    	
+    	// will return 0 if one or more ingredient missing, or the fewest servings made by some ingredient is 0
+    	return new Integer(max);
     }
 
     /** 
@@ -66,6 +94,8 @@ public class GroceryMatch {
         //
         //         if the ingredient is not found in the GroceryList
         //            print how many more needs to be bought
+    	
+    	
 
     }
 
